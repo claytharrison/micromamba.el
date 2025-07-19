@@ -95,7 +95,7 @@ Pass ARGS as arguments to the program."
     (user-error "Micromamba-executable is not set!"))
   (with-temp-buffer
     (if (file-remote-p default-directory)
-        (shell-command (mapconcat 'identity (cons micromamba-executable args) " ") (current-buffer))
+        (shell-command (mapconcat #'shell-quote-argument (cons micromamba-executable args) " ") (current-buffer))
       (apply #'call-process micromamba-executable nil t nil args))
     (goto-char (point-min))
     (json-read)))
@@ -232,9 +232,8 @@ The parameters value is an alist as defined by
   (with-temp-buffer
     (if (file-remote-p default-directory)
         (shell-command
-         (mapconcat 'identity
-                    (list micromamba-executable "shell"
-                          "activate" prefix "-s" "bash") " ")
+         (concat micromamba-executable " shell"
+                 " activate " prefix " -s" " bash")
          (current-buffer))
       (call-process micromamba-executable nil t nil
                     "shell" "activate" prefix "-s" "bash"))
@@ -249,10 +248,9 @@ The parameters value is an alist as defined by
   (with-temp-buffer
     (if (file-remote-p default-directory)
         (shell-command
-         (mapconcat 'identity
-                    (list micromamba-executable "run"
-                          "micromamba" "shell"
-                          "deactivate" "-s" "bash") " ")
+         (concat micromamba-executable " run"
+                          " micromamba" " shell"
+                          " deactivate" " -s" " bash")
          (current-buffer))
       (call-process micromamba-executable nil t nil
                     "shell" "deactivate" "-s" "bash"))
